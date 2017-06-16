@@ -14,7 +14,7 @@
 read_tracks = function(filename=NULL) {
 
   if (is.null(filename)) {
-    filename = '../data/tr_trs_VOR850_19792009_pos.addmslp_addspeed_addprecipNEW_addomega.new_1000km2dayfiltered_RealProjregionfiltered_trackinregion_INTERIM'
+    filename = 'data/tr_trs_VOR850_19792009_pos.addmslp_addspeed_addprecipNEW_addomega.new_1000km2dayfiltered_RealProjregionfiltered_trackinregion_INTERIM'
   }
   stopifnot(file.exists(filename))
   
@@ -152,7 +152,7 @@ plot.stormtracks = function(obj, ...) {
 #' trx = read_tracks()
 #' trx_1990 = filter_by_year(trx, yr_lim=c(1990, 1990))
 #' @export
-extract_by_year = function(obj, yr_lim=c(-Inf, Inf)) {
+filter_by_year = function(obj, yr_lim=c(-Inf, Inf)) {
 
   stopifnot(class(obj) == 'stormtracks')
 
