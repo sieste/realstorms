@@ -1,0 +1,15 @@
+Package: storm_tracks
+Version: 0.0-1
+Date: 2017-06-16
+Title: Storm track analysis
+Description: R functions for storm track analysis
+Authors@R: c(person(given="Stefan", family="Siegert",   role = c("aut", "cre"), 
+                                                        email="s.siegert@exeter.ac.uk"),
+             person(given="Adrian",  family="Champion", role="ctb")
+            )
+Maintainer: Stefan Siegert <s.siegert@exeter.ac.uk>
+License: GPL (>= 2)
+Imports: 
+LinkingTo: 
+Suggests: 
+

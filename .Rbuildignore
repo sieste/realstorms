@@ -1,0 +1,11 @@
+Makefile
+README.md
+.gitignore
+.git
+^.*.Rcheck$
+^.*.tar.gz$
+notes
+data
+LICENSE
+libtmp
+
