@@ -108,9 +108,9 @@ unwrap_lonlat = function(lonlat) {
 #' @param obj Object of class 'stormtrack'
 #' @param ... additional arguments passed to plot() function
 #' @return NULL
-#' @example 
+#' @examples
 #' trx = read_tracks()
-#' plot(trx, col='#00000010')
+#' plot(trx, col='#00000010', lwd=5)
 #' @export
 plot.stormtracks = function(obj, ...) {
 
@@ -148,7 +148,7 @@ plot.stormtracks = function(obj, ...) {
 #' @param yr_lim Range of years for which to return storms
 #' @return Object of class 'stormtracks' containing only storms in the selected range of years.
 #' @details The year range is inclusive, i.e. setting `yr_lim=c(1990,1991)` returns all storms that occurred in 1990 and 1991.
-#' @example
+#' @examples
 #' trx = read_tracks()
 #' trx_1990 = filter_by_year(trx, yr_lim=c(1990, 1990))
 #' @export
@@ -183,7 +183,7 @@ extract_by_year = function(obj, yr_lim=c(-Inf, Inf)) {
 #' @param unit Unit in which duration is measured. Either `hours` or `days`. Can be abbreviated. Default is `hours`.
 #' @return Object of class 'stormtracks' containing only storms in the selected range of duration.
 #' @details The range is inclusive, i.e. setting `dur_lim=c(2,2)` returns all storms that occurred in 1990 and 1991.
-#' @example
+#' @examples
 #' trx = read_tracks()
 #' trx_1day = filter_by_duration(trx, dur_lim=c(1,1), unit='d')
 #' @export
