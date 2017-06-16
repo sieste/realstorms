@@ -1,4 +1,4 @@
-Package: storm_tracks
+Package: realstorms
 Version: 0.0-1
 Date: 2017-06-16
 Title: Storm track analysis
@@ -9,7 +9,7 @@ Authors@R: c(person(given="Stefan", family="Siegert",   role = c("aut", "cre"),
             )
 Maintainer: Stefan Siegert <s.siegert@exeter.ac.uk>
 License: GPL (>= 2)
-Imports: 
+Imports: sp, maps
 LinkingTo: 
 Suggests: 
-
+RoxygenNote: 6.0.1
