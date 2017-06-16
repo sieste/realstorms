@@ -1,8 +1,8 @@
 .*.swp
 .*.swo
 data
-track_data_notes.md
 libtmp
+notes
 *.tar.gz
 
 
