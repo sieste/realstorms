@@ -9,7 +9,7 @@
 #' @param filename Input file name
 #' @return An object of class 'stormtracks'
 #'
-#' @details The return value is essentially a list of storm tracks. Each list element is a matrix with columns dates, lat, lon, vorticity, minimum mslp etc.
+#' @details A stormtracks-object is a list of storm tracks. Each storm track is represented by a matrix with columns (at least) dates, lat, lon, vorticity, and possibly further variables like sea level pressure or precipitation.
 #' @export
 read_tracks = function(filename=NULL) {
 
@@ -140,9 +140,9 @@ plot.stormtracks = function(obj, ...) {
 }
 
 
-#' Extract storms by year
+#' Filter by year
 #' 
-#' Extract storms that occurred within a range of years.
+#' Filter storms that occurred within a range of years.
 #'
 #' @param obj Object of class 'stormtracks'
 #' @param yr_lim Range of years for which to return storms
@@ -150,7 +150,7 @@ plot.stormtracks = function(obj, ...) {
 #' @details The year range is inclusive, i.e. setting `yr_lim=c(1990,1991)` returns all storms that occurred in 1990 and 1991.
 #' @example
 #' trx = read_tracks()
-#' trx_1990 = extract_by_year(trx, yr_lim=c(1990, 1990))
+#' trx_1990 = filter_by_year(trx, yr_lim=c(1990, 1990))
 #' @export
 extract_by_year = function(obj, yr_lim=c(-Inf, Inf)) {
 
@@ -166,9 +166,54 @@ extract_by_year = function(obj, yr_lim=c(-Inf, Inf)) {
 
   # filter stormtracks by yr_lim (inclusive)
   inds = which(start_yrs >= min(yr_lim) & start_yrs <= max(yr_lim))
+  out = obj[inds]
+  class(out) = 'stormtracks'
 
-  return(obj[inds])
+  return(out)
 }
 
+
+
+#' Filter by duration
+#' 
+#' Filter storms by how long they lasted
+#'
+#' @param obj Object of class 'stormtracks'
+#' @param dur_lim Range of storm durations for which to return storms.
+#' @param unit Unit in which duration is measured. Either `hours` or `days`. Can be abbreviated. Default is `hours`.
+#' @return Object of class 'stormtracks' containing only storms in the selected range of duration.
+#' @details The range is inclusive, i.e. setting `dur_lim=c(2,2)` returns all storms that occurred in 1990 and 1991.
+#' @example
+#' trx = read_tracks()
+#' trx_1day = filter_by_duration(trx, dur_lim=c(1,1), unit='d')
+#' @export
+filter_by_duration = function(obj, dur_lim=c(0, Inf), unit=c('hours', 'days')) {
+
+  stopifnot(class(obj) == 'stormtracks')
+  unit = match.arg(unit)
+
+  # calculate storm duration in seconds
+  duration_sec = sapply(obj, function(x) {
+    d0_ = paste(x[1, 'date']) 
+    d0_ = as.POSIXct(d0_, format='%Y%m%d%H')
+    d1_ = paste(x[nrow(x), 'date']) 
+    d1_ = as.POSIXct(d1_, format='%Y%m%d%H')
+    dur_ = as.numeric(d1_) - as.numeric(d0_)
+    return(dur_)
+  })
+
+  # convert to hours (and days if necessary)
+  duration = duration_sec / (60 * 60)
+  if (unit == 'days') {
+    duration = duration / 24
+  } 
+
+  # filter stormtracks by duration (inclusive)
+  inds = which(duration >= min(dur_lim) & duration <= max(dur_lim))
+  out = obj[inds]
+  class(out) = 'stormtracks'
+
+  return(out)
+}
 
 
