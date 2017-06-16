@@ -182,7 +182,6 @@ extract_by_year = function(obj, yr_lim=c(-Inf, Inf)) {
 #' @param dur_lim Range of storm durations for which to return storms.
 #' @param unit Unit in which duration is measured. Either `hours` or `days`. Can be abbreviated. Default is `hours`.
 #' @return Object of class 'stormtracks' containing only storms in the selected range of duration.
-#' @details The range is inclusive, i.e. setting `dur_lim=c(2,2)` returns all storms that occurred in 1990 and 1991.
 #' @examples
 #' trx = read_tracks()
 #' trx_1day = filter_by_duration(trx, dur_lim=c(1,1), unit='d')
