@@ -1,6 +1,16 @@
 # Copyright 2017 Stefan Siegert
 # Subject to GPLv3 https://www.gnu.org/licenses/gpl.txt
 
+
+#' Read storm tracks 
+#'
+#' Create a list of storm tracks from a file.
+#'
+#' @param filename Input file name
+#' @return An object of class 'stormtracks'
+#'
+#' @details The return value is essentially a list of storm tracks. Each list element is a matrix with columns dates, lat, lon, vorticity, minimum mslp etc.
+#' @export
 read_tracks = function(filename=NULL) {
 
   if (is.null(filename)) {
@@ -63,13 +73,19 @@ read_tracks = function(filename=NULL) {
   return(tracks)
 }
 
-# This is a helper function used in plot.stormtracks below. When
-# longitude crosses the date line, the line has to be split into two
-# segments. Otherwise R will connect the line segments across the entire
-# globe. The built-in R function maptools::nowrapSpatialLines seems to
-# be broken, so I coded it by hand. This function splits a 2 column
-# matrix of lons and lats into a list of 2-column matrices matrices,
-# separated whenever lon crosses the dateline
+#' Unwrap longitudes and latitudes
+#'
+#' Unwrap longitudes to plot lines properly on a 2d map
+#' 
+#' @param lonlat A 2 column matrix, each row is a lon/lat pair.
+#' @return A list of 2-column matrices lon/lat.
+#' @details This is a helper function used in plot.stormtracks below. When
+#' longitude crosses the date line, the line has to be split into two
+#' segments. Otherwise R will connect the line segments across the entire
+#' globe. The built-in R function maptools::nowrapSpatialLines seems to
+#' be broken, so I coded it by hand. This function splits a 2 column
+#' matrix of lons and lats into a list of 2-column matrices matrices,
+#' separated whenever lon crosses the dateline.
 unwrap_lonlat = function(lonlat) {
   l = list(lonlat[1, , drop=FALSE])
   k = 1
@@ -86,7 +102,16 @@ unwrap_lonlat = function(lonlat) {
 }
 
 
-# plotting function for objects of class 'stormtrack'
+#' Plot storm tracks
+#'
+#' Plotting function for objects of class 'stormtrack'
+#' @param obj Object of class 'stormtrack'
+#' @param ... additional arguments passed to plot() function
+#' @return NULL
+#' @example 
+#' trx = read_tracks()
+#' plot(trx, col='#00000010')
+#' @export
 plot.stormtracks = function(obj, ...) {
 
   library(sp)
@@ -114,6 +139,36 @@ plot.stormtracks = function(obj, ...) {
 
 }
 
-#obj = read_tracks()
-#plot(obj, col='#00000010')
+
+#' Extract storms by year
+#' 
+#' Extract storms that occurred within a range of years.
+#'
+#' @param obj Object of class 'stormtracks'
+#' @param yr_lim Range of years for which to return storms
+#' @return Object of class 'stormtracks' containing only storms in the selected range of years.
+#' @details The year range is inclusive, i.e. setting `yr_lim=c(1990,1991)` returns all storms that occurred in 1990 and 1991.
+#' @example
+#' trx = read_tracks()
+#' trx_1990 = extract_by_year(trx, yr_lim=c(1990, 1990))
+#' @export
+extract_by_year = function(obj, yr_lim=c(-Inf, Inf)) {
+
+  stopifnot(class(obj) == 'stormtracks')
+
+  # get start year of each storm track
+  start_yrs = sapply(obj, function(x) {
+    d_ = paste(x[1, 'date']) 
+    d_ = as.Date(d_, format='%Y%m%d%H')
+    d_ = format(d_, '%Y')
+    return(as.numeric(d_))
+  })
+
+  # filter stormtracks by yr_lim (inclusive)
+  inds = which(start_yrs >= min(yr_lim) & start_yrs <= max(yr_lim))
+
+  return(obj[inds])
+}
+
+
 
