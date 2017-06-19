@@ -216,3 +216,45 @@ filter_by_duration = function(obj, dur_lim=c(0, Inf), unit=c('hours', 'days')) {
 }
 
 
+
+stormtracks.density = function(obj, ...) {
+
+  library(raster)
+  library(sp)
+  library(maps)
+
+  # create regular grid (5 degree resolution)
+  r = raster(xmn=-180, xmx=180, ymn=-90, ymx=90, resolution=c(5,5)) 
+  r = rasterToPolygons(r)
+  r = as(r, 'SpatialPolygons')
+
+  # transform the track data into a SpatialPointsDataframe object
+  pts = 
+    lapply(seq_along(obj), function(ii) {
+      data_ = obj[[ii]]
+      id_ = names(obj)[ii]
+      lats_ = data_[, 'lat_vor850']
+      lons_ = data_[, 'lon_vor850']
+      lons_[lons_ > 180] = lons_[lons_ > 180] - 360
+      lonlat_ = cbind(lons_, lats_)
+      return(lonlat_)
+    })
+  pts = do.call(rbind, pts)
+  pts = as.data.frame(pts)
+  colnames(pts) = c('lon', 'lat')
+  # shortcut to convert data frame to sp::SpatialPointsDataframe
+  coordinates(pts) = pts
+
+  # set coordinate systems equal
+  proj4string(r) = CRS('+proj=longlat +datum=WGS84')
+  proj4string(pts) = CRS('+proj=longlat +datum=WGS84')
+
+  # use sp::over operator to intersect storm track points and the
+  # spatial grid 
+  dens = pts %over% r
+  
+
+  # MORE HERE
+  
+
+}
