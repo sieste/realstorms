@@ -217,16 +217,11 @@ filter_by_duration = function(obj, dur_lim=c(0, Inf), unit=c('hours', 'days')) {
 
 
 
-stormtracks.density = function(obj, ...) {
+stormtracks_density = function(obj, ...) {
 
-  library(raster)
   library(sp)
-  library(maps)
-
-  # create regular grid (5 degree resolution)
-  r = raster(xmn=-180, xmx=180, ymn=-90, ymx=90, resolution=c(5,5)) 
-  r = rasterToPolygons(r)
-  r = as(r, 'SpatialPolygons')
+  library(ggplot2)
+  library(rworldmap)
 
   # transform the track data into a SpatialPointsDataframe object
   pts = 
@@ -240,21 +235,19 @@ stormtracks.density = function(obj, ...) {
       return(lonlat_)
     })
   pts = do.call(rbind, pts)
-  pts = as.data.frame(pts)
   colnames(pts) = c('lon', 'lat')
-  # shortcut to convert data frame to sp::SpatialPointsDataframe
-  coordinates(pts) = pts
+  pts = as.data.frame(pts)
 
-  # set coordinate systems equal
-  proj4string(r) = CRS('+proj=longlat +datum=WGS84')
-  proj4string(pts) = CRS('+proj=longlat +datum=WGS84')
 
-  # use sp::over operator to intersect storm track points and the
-  # spatial grid 
-  dens = pts %over% r
+  world = map("world", fill=TRUE, plot=FALSE)
+  # convert the 'map' to something we can work with via geom_map
+  IDs = sapply(strsplit(world$names, ":"), function(x) x[1])
+  world = map2SpatialPolygons(world, IDs=IDs, proj4string=CRS("+proj=longlat +datum=WGS84"))
+  # this does the magic for geom_map
+  world_map = fortify(world)
   
+  plt = ggplot(pts) + geom_map(data=world_map, map=world_map, aes(map_id=id)) + xlim(-180, 180) + ylim(-90, 90) + stat_density2d(aes(x=lon, y=lat, fill=..level..), geom='polygon') 
 
-  # MORE HERE
-  
+  return(plt)
 
 }
