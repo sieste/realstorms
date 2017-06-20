@@ -225,6 +225,7 @@ filter_by_duration = function(obj, dur_lim=c(0, Inf), unit=c('hours', 'days')) {
 #'
 #' @details This function takes all points in the stromtracks archive and constructs a 2d density plot using the ggplot2 function `stat_density2d`.
 #'
+#' @export
 
 stormtracks_density = function(obj, ...) {
 
