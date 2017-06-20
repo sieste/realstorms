@@ -216,12 +216,22 @@ filter_by_duration = function(obj, dur_lim=c(0, Inf), unit=c('hours', 'days')) {
 }
 
 
+#' Storm track density plot
+#'
+#' Plot storm track density on a map.
+#'
+#' @param obj Object of class 'stormtracks'
+#' @return A ggplot object.
+#'
+#' @details This function takes all points in the stromtracks archive and constructs a 2d density plot using the ggplot2 function `stat_density2d`.
+#'
 
 stormtracks_density = function(obj, ...) {
 
+  stopifnot(class(obj) == 'stormtracks')
+
   library(sp)
   library(ggplot2)
-  library(rworldmap)
 
   # transform the track data into a SpatialPointsDataframe object
   pts = 
@@ -239,15 +249,17 @@ stormtracks_density = function(obj, ...) {
   pts = as.data.frame(pts)
 
 
-  world = map("world", fill=TRUE, plot=FALSE)
-  # convert the 'map' to something we can work with via geom_map
-  IDs = sapply(strsplit(world$names, ":"), function(x) x[1])
-  world = map2SpatialPolygons(world, IDs=IDs, proj4string=CRS("+proj=longlat +datum=WGS84"))
-  # this does the magic for geom_map
-  world_map = fortify(world)
-  
-  plt = ggplot(pts) + geom_map(data=world_map, map=world_map, aes(map_id=id)) + xlim(-180, 180) + ylim(-90, 90) + stat_density2d(aes(x=lon, y=lat, fill=..level..), geom='polygon') 
+  world = map_data('world')
+  plt = ggplot(pts) + 
+        geom_polygon(data=world, aes(x=long, y=lat, group=group), 
+                     color='grey80', fill='grey80') + 
+        xlim(-180, 180) + ylim(-90, 90) + 
+        stat_density2d(aes(x=lon, y=lat, fill=..level.., alpha=..level..), geom='polygon') +
+        theme_bw() +
+        scale_alpha_continuous(range=c(0.3, 0.7)) +
+        theme(legend.title=element_blank()) + theme(legend.position='none')
 
   return(plt)
 
 }
+
