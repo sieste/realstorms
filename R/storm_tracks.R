@@ -11,11 +11,8 @@
 #'
 #' @details A stormtracks-object is a list of storm tracks. Each storm track is represented by a matrix with columns (at least) dates, lat, lon, vorticity, and possibly further variables like sea level pressure or precipitation.
 #' @export
-read_tracks = function(filename=NULL) {
+read_tracks = function(filename) {
 
-  if (is.null(filename)) {
-    filename = 'data/tr_trs_VOR850_19792009_pos.addmslp_addspeed_addprecipNEW_addomega.new_1000km2dayfiltered_RealProjregionfiltered_trackinregion_INTERIM'
-  }
   stopifnot(file.exists(filename))
   
   lines = readLines(filename)
