@@ -250,12 +250,12 @@ stormtracks_density = function(obj, type=c('kde2d', 'bin2d'), ...) {
   pts = as.data.frame(pts)
 
 
-  load('data/coastline.Rdata')
+  data('coastsCoarse', package='rworldmap')
+  coastline = fortify(coastsCoarse)
 
   plt = ggplot() + 
-        geom_polygon(data=coastline, aes(x=long, y=lat, group=group),
-                     color='black', fill=NA) +
-        coord_fixed(xlim=c(-181, 181), ylim=c(-90,90), ratio=1)
+        geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
+        coord_fixed(xlim=c(-180, 180), ylim=c(-90,90), ratio=1)
   if (type == 'bin2d') {
      plt = plt + stat_bin2d(data=pts, aes(x=lon, y=lat, fill=..count.., alpha=..count.. * 0.5), 
                             binwidth=c(1,1), bins=25)   +
