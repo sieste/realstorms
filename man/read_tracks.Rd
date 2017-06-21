@@ -4,7 +4,7 @@
 \alias{read_tracks}
 \title{Read storm tracks}
 \usage{
-read_tracks(filename = NULL)
+read_tracks(filename)
 }
 \arguments{
 \item{filename}{Input file name}
