@@ -11,10 +11,9 @@ plot.stormtracks(obj, ...)
 
 \item{...}{additional arguments passed to plot() function}
 }
+\value{
+A ggplot object.
+}
 \description{
 Plotting function for objects of class 'stormtrack'
-}
-\examples{
-trx = read_tracks()
-plot(trx, col='#00000010', lwd=5)
 }
