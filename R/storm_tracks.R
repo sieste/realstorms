@@ -253,11 +253,10 @@ stormtracks_density = function(obj, type=c('kde2d', 'bin2d'), ...) {
   pts = as.data.frame(pts)
 
 
-  if (!file.exists('data/coasts.Rdata')) save_coastline()
-  load('data/coasts.Rdata')
+  load('data/coastline.Rdata')
 
   plt = ggplot() + 
-        geom_polygon(data=coasts, aes(x=long, y=lat, group=group),
+        geom_polygon(data=coastline, aes(x=long, y=lat, group=group),
                      color='black', fill=NA) +
         coord_fixed(xlim=c(-181, 181), ylim=c(-90,90), ratio=1)
   if (type == 'bin2d') {
@@ -277,13 +276,4 @@ stormtracks_density = function(obj, type=c('kde2d', 'bin2d'), ...) {
 
 }
 
-
-#' create coast lines data frame from shapefile. this only has to be done once.
-save_coastline = function() {
-  x = rgdal::readOGR('data/ne_coast/ne_50m_coastline.shp', 'ne_50m_coastline')
-  x@data$id = rownames(x@data)
-  x_f = ggplot2::fortify(x, region='id')
-  coasts = plyr::join(x_f, x@data, by='id')
-  save(file='data/coasts.Rdata', list='coasts')
-}
 

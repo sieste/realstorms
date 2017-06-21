@@ -1,8 +1,7 @@
+private
 .*.swp
 .*.swo
-data
 libtmp
-notes
 *.tar.gz
 
 
