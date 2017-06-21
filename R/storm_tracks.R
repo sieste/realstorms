@@ -99,40 +99,64 @@ unwrap_lonlat = function(lonlat) {
 }
 
 
+#' Fortify storm tracks
+#'
+#' Fortify storm tracks object into a data frame for plotting with ggplot2
+#'
+fortify.stormtracks = function(obj, ...) {
+  
+  library(plyr)
+  obj_ = ldply(obj, .id='ID')
+
+  # transform all longitudes from 0:360 to -180:180
+  lon_cols = grep('^lon_', names(obj_))
+  for (i in lon_cols) {
+    inds = obj_[, i] > 180
+    inds[is.na(inds)] = FALSE
+    obj_[inds, i] = obj_[inds,i] - 360
+  }
+
+  # create new ID that changes when track wraps around date line
+  obj_ = ddply(obj_, .(ID), transform, ID2=
+           (function(lon) {
+              n = length(lon)
+              if (n == 1) return(1)
+              wrap = c(FALSE, abs(lon[-1]-lon[-n])>180)
+              id_new = cumsum(wrap) + 1
+              return(id_new)
+           })(lon_vor850)
+         )
+  obj_$ID2 = paste(obj_$ID, obj_$ID2, sep='.')
+
+  return(obj_)
+
+}
+
+
 #' Plot storm tracks
 #'
 #' Plotting function for objects of class 'stormtrack'
 #' @param obj Object of class 'stormtrack'
 #' @param ... additional arguments passed to plot() function
-#' @return NULL
-#' @examples
-#' trx = read_tracks()
-#' plot(trx, col='#00000010', lwd=5)
+#' @return A ggplot object.
 #' @export
 plot.stormtracks = function(obj, ...) {
 
   library(sp)
   library(maps)
-  # transform the track data into a list of "Lines" objects (package sp)
-  tracks = 
-    lapply(seq_along(obj), function(ii) {
-      data_ = obj[[ii]]
-      id_ = names(obj)[ii]
-      lats_ = data_[, 'lat_vor850']
-      lons_ = data_[, 'lon_vor850']
-      lons_[lons_ > 180] = lons_[lons_ > 180] - 360
-      lonlat_ = cbind(lons_, lats_)
-      lonlat_ = unwrap_lonlat(lonlat_)
-      Lines(lapply(lonlat_, Line), ID=id_)
-    })
-  spl_tracks = SpatialLines(tracks, proj4string=CRS('+proj=longlat +ellps=WGS84'))
-  
-  # world map
-  map()
+  library(ggplot2)
 
-  # add tracks to the map, using arguments passed to the
-  # plot.stormtracks function
-  lines(spl_tracks, ...)
+  obj_ = fortify(obj)
+  data('coastsCoarse', package='rworldmap')
+  coastline = fortify(coastsCoarse)
+
+  plt = ggplot() + 
+        geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
+        geom_path(data=obj_, aes(x=lon_vor850, y=lat_vor850, group=ID2, ...)) +
+        theme_bw() +
+        theme(legend.title=element_blank()) + theme(legend.position='none')
+
+  return(plt)
 
 }
 
