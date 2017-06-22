@@ -7,7 +7,7 @@
 plot.stormtracks(obj, ...)
 }
 \arguments{
-\item{obj}{Object of class 'stormtrack'}
+\item{obj}{Object of class 'stormtracks'}
 
 \item{...}{additional arguments passed to plot() function}
 }
@@ -15,5 +15,5 @@ plot.stormtracks(obj, ...)
 A ggplot object.
 }
 \description{
-Plotting function for objects of class 'stormtrack'
+Plotting function for objects of class 'stormtracks'
 }

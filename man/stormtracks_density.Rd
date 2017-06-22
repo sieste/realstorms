@@ -4,12 +4,12 @@
 \alias{stormtracks_density}
 \title{Storm track density plot}
 \usage{
-stormtracks_density(obj, type = c("kde2d", "bin2d"), ...)
+stormtracks_density(obj, type = c("density_2d", "bin_2d"), ...)
 }
 \arguments{
 \item{obj}{Object of class 'stormtracks'}
 
-\item{type}{Which type of density estimator to use. Options are `bin2d` (the default) and `kde2d`. See the help files of `ggplot2::stat_density_2d` and `ggplot2::stat_bin_2d` for details.}
+\item{type}{Which type of density estimator to use. Options are `density_2d` (the default) and `bin_2d`. See the help files of `ggplot2::stat_bin_2d` and `ggplot2::stat_density_2d` for details.}
 }
 \value{
 A ggplot object.

@@ -70,40 +70,17 @@ read_tracks = function(filename) {
   return(tracks)
 }
 
-#' Unwrap longitudes and latitudes
-#'
-#' Unwrap longitudes to plot lines properly on a 2d map
-#' 
-#' @param lonlat A 2 column matrix, each row is a lon/lat pair.
-#' @return A list of 2-column matrices lon/lat.
-#' @details This is a helper function used in plot.stormtracks below. When
-#' longitude crosses the date line, the line has to be split into two
-#' segments. Otherwise R will connect the line segments across the entire
-#' globe. The built-in R function maptools::nowrapSpatialLines seems to
-#' be broken, so I coded it by hand. This function splits a 2 column
-#' matrix of lons and lats into a list of 2-column matrices matrices,
-#' separated whenever lon crosses the dateline.
-unwrap_lonlat = function(lonlat) {
-  l = list(lonlat[1, , drop=FALSE])
-  k = 1
-  for (i in 2:nrow(lonlat)) {
-    if ((lonlat[i-1,1] >  100 & lonlat[i,1] < -100) |
-        (lonlat[i-1,1] < -100 & lonlat[i,1] >  100)) {
-      k = k + 1
-      l[[k]] = lonlat[i, , drop=FALSE]
-    } else {
-      l[[k]] = rbind(l[[k]], lonlat[i, ]) 
-    }
-  }
-  return(l)
-}
 
 
-#' Fortify storm tracks
+#' Tidy storm tracks
 #'
-#' Fortify storm tracks object into a data frame for plotting with ggplot2
+#' Tidy up storm tracks into a data frame for use with ggplot2.
+#' @param obj Object of class 'stormtracks'
+#' @return A tidy data frame.
 #'
-fortify.stormtracks = function(obj, ...) {
+#' @importFrom broom tidy
+#' @export
+tidy.stormtracks = function(obj, ...) {
   
   library(plyr)
   obj_ = ldply(obj, .id='ID')
@@ -135,20 +112,19 @@ fortify.stormtracks = function(obj, ...) {
 
 #' Plot storm tracks
 #'
-#' Plotting function for objects of class 'stormtrack'
-#' @param obj Object of class 'stormtrack'
+#' Plotting function for objects of class 'stormtracks'
+#' @param obj Object of class 'stormtracks'
 #' @param ... additional arguments passed to plot() function
 #' @return A ggplot object.
 #' @export
 plot.stormtracks = function(obj, ...) {
 
-  library(sp)
-  library(maps)
   library(ggplot2)
+  library(broom)
 
-  obj_ = fortify(obj)
+  obj_ = tidy(obj)
   data('coastsCoarse', package='rworldmap')
-  coastline = fortify(coastsCoarse)
+  coastline = tidy(coastsCoarse)
 
   plt = ggplot() + 
         geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
@@ -242,14 +218,14 @@ filter_by_duration = function(obj, dur_lim=c(0, Inf), unit=c('hours', 'days')) {
 #' Plot storm track density on a map.
 #'
 #' @param obj Object of class 'stormtracks'
-#' @param type Which type of density estimator to use. Options are `bin2d` (the default) and `kde2d`. See the help files of `ggplot2::stat_density_2d` and `ggplot2::stat_bin_2d` for details.
+#' @param type Which type of density estimator to use. Options are `density_2d` (the default) and `bin_2d`. See the help files of `ggplot2::stat_bin_2d` and `ggplot2::stat_density_2d` for details.
 #' @return A ggplot object.
 #'
 #' @details This function takes all points in the stromtracks archive and constructs a 2d density plot using the ggplot2 function `stat_density2d`.
 #'
 #' @export
 
-stormtracks_density = function(obj, type=c('kde2d', 'bin2d'), ...) {
+stormtracks_density = function(obj, type=c('density_2d', 'bin_2d'), ...) {
 
   stopifnot(class(obj) == 'stormtracks')
 
@@ -259,42 +235,36 @@ stormtracks_density = function(obj, type=c('kde2d', 'bin2d'), ...) {
   library(ggplot2)
 
   # transform the track data into a lon/lat data frame
-  pts = 
-    lapply(seq_along(obj), function(ii) {
-      data_ = obj[[ii]]
-      id_ = names(obj)[ii]
-      lats_ = data_[, 'lat_vor850']
-      lons_ = data_[, 'lon_vor850']
-      lons_[lons_ > 180] = lons_[lons_ > 180] - 360
-      lonlat_ = cbind(lons_, lats_)
-      return(lonlat_)
-    })
-  pts = do.call(rbind, pts)
-  colnames(pts) = c('lon', 'lat')
-  pts = as.data.frame(pts)
+  obj_ = tidy(obj)
 
 
   data('coastsCoarse', package='rworldmap')
-  coastline = fortify(coastsCoarse)
+  coastline = tidy(coastsCoarse)
 
   plt = ggplot() + 
         geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
         coord_fixed(xlim=c(-180, 180), ylim=c(-90,90), ratio=1)
-  if (type == 'bin2d') {
-     plt = plt + stat_bin2d(data=pts, aes(x=lon, y=lat, fill=..count.., alpha=..count.. * 0.5), 
-                            binwidth=c(1,1), bins=25)   +
-                 scale_alpha_continuous(range=c(0.7, 1))
-  } else if (type == 'kde2d') {
-     plt = plt + stat_density2d(data=pts, aes(x=lon, y=lat, fill=..level.., alpha=..level..), 
-                                geom='polygon') +
-                 scale_alpha_continuous(range=c(0.3, 0.7))
+  if (type == 'bin_2d') {
+     plt = plt + 
+           stat_bin2d(data=obj_, 
+                      aes(x=lon_vor850, y=lat_vor850, 
+                          fill=..count.., alpha=..count.. * 0.5), 
+                      binwidth=c(1,1), bins=25)   +
+           scale_alpha_continuous(range=c(0.7, 1))
+  } else if (type == 'density_2d') {
+     plt = plt + 
+           stat_density2d(data=obj_, 
+                          aes(x=lon_vor850, y=lat_vor850, 
+                              fill=..level.., alpha=..level..), 
+                          geom='polygon') +
+           scale_alpha_continuous(range=c(0.3, 0.7))
   }
   plt = plt +      
         theme_bw() +
-        theme(legend.title=element_blank()) + theme(legend.position='none')
+        theme(legend.title=element_blank()) + 
+        theme(legend.position='none')
 
   return(plt)
-
 }
 
 
