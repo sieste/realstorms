@@ -1,23 +1,26 @@
-# Copyright 2017 Stefan Siegert
+# Copyright 2017-2018 Stefan Siegert, Adrian Champion
 # Subject to GPLv3 https://www.gnu.org/licenses/gpl.txt
 
 
-#' Read storm tracks 
+#' Read storm tracks into a data.table
 #'
-#' Create a list of storm tracks from a file.
+#' Create a data.table of storm tracks from a file.
 #'
 #' @param filename Input file name
-#' @return An object of class 'stormtracks'
+#' @param col_names Vector of column names for the data.table. Will be truncated/padded to correct length if necessary.
+#' @return data.table with columns date, lat, lon, vorticity, and possibly further variables measured along the track (sea level pressure, precipitation, ...)
 #'
-#' @details A stormtracks-object is a list of storm tracks. Each storm track is represented by a matrix with columns (at least) dates, lat, lon, vorticity, and possibly further variables like sea level pressure or precipitation.
 #' @export
-read_tracks = function(filename) {
+read_tracks = 
+function(filename, 
+         col_names=c('ID', 'date', 'lon_vor850', 'lat_vor850', 'vor850')) 
+{
 
   stopifnot(file.exists(filename))
   
   lines = readLines(filename)
   
-  # search lines that start with "TRACK_ID"
+  # find all lines that start with "TRACK_ID"
   i_start = grep(pattern='^TRACK_ID', x=lines)
   
   # number of tracks
@@ -43,30 +46,39 @@ read_tracks = function(filename) {
 
     # convert to matrix with columns date, lon, lat, var01, var02, ...
     data_ = do.call(rbind, strsplit(lines1_, ' +'))
-    n_var = ncol(data_) - 3
-    colnames(data_) = c('date', 
-                        'lon_vor850', 'lat_vor850', 'vor850', 
-                        'lon_mslpmin', 'lat_mslpmin', 'mslpmin',
-                        'lon_wind925max', 'lat_wind925max', 'wind925max',
-                        'lon_prcpmax', 'lat_prcpmax', 'prcpmax',
-                        'lon_omega925min', 'lat_omega925min', 'omega925min')
 
-    # convert to numeric
-    data1_ = apply(data_, 2, as.numeric)
+    # transform to data.table
+    data_ = as.data.table(data_)
+
+    # convert everything from character to numeric
+    data_ = dplyr::mutate_all(data_, as.numeric)
 
     # set NA's
-    data1_[ data1_ == 1e25 ] = NA
+    data_[ data_ == 1e25 ] = NA
+
 
     # get storm track ID
     id_nr_ = strsplit(lines[i_start[ii]], ' +')[[1]][2]
     id_ = paste('ID', id_nr_, sep='_')
 
     # add to list  
-    tracks[[id_]] = data1_
+    tracks[[id_]] = data_
   }
 
-  # return object of class 'stormtracks'
-  class(tracks) = 'stormtracks'
+  # combine list of data.tables to one long data.table
+  tracks = rbindlist(tracks, idcol='ID')
+
+  # transform storm ID from e.g. 'ID_123' to 123
+  tracks[, ID := as.numeric(gsub('ID_', '', ID))]
+
+  # set column names:
+  # truncate/NA-pad col_names argument to correct length
+  col_names = col_names[1:ncol(tracks)] 
+  # replace any NA col_names by the auto-generated names (V5, V6, etc)
+  col_names[is.na(col_names)] = colnames(tracks)[is.na(col_names)] 
+  colnames(tracks) = col_names
+
+  # return data table
   return(tracks)
 }
 
@@ -233,6 +245,7 @@ stormtracks_density = function(obj, type=c('density_2d', 'bin_2d'), ...) {
 
   library(sp)
   library(ggplot2)
+  library(broom)
 
   # transform the track data into a lon/lat data frame
   obj_ = tidy(obj)
