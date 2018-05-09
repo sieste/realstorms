@@ -4,13 +4,13 @@
 \alias{plot.track_density}
 \title{Plot track or feature density}
 \usage{
-plot.track_density(obj, what = c("track_density", "point_density",
-  "track_count", "point_count"))
+plot.track_density(obj, what = c("track_density", "feature_density",
+  "track_count", "feature_count"))
 }
 \arguments{
 \item{obj}{Data table returned by function `count_storms`}
 
-\item{what}{One of 'track_density', 'point_density', 'track_count', 'point_count'}
+\item{what}{One of 'track_density', 'feature_density', 'track_count', 'feature_count'}
 }
 \value{
 A ggplot2 object

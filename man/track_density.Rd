@@ -18,7 +18,7 @@ track_density(tracks, bw = 1, var = NULL)
 grid of counts
 }
 \description{
-Count total number and normalised number of storm tracks or points along storm tracks on a grid.
+Count total number and normalised number of storm tracks or features on a grid.
 }
 \examples{
 tracks = read_tracks('../inst/extdata/storms.txt')
