@@ -24,11 +24,13 @@ plot.stormtracks = function(obj, var=NULL) {
   coastline = tidy(coastsCoarse)
 
   plt = ggplot() + 
-        geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
         geom_path(data=obj, aes_string(x=lon_col, y=lat_col, group='ID', colour=var_col)) +
-        theme_bw() 
+        geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
+        theme_bw() +
+    coord_cartesian(xlim = obj[, range(get(lon_col))],
+                    ylim = obj[, range(get(lat_col))])
 
-  plt = plt + theme(legend.title=element_blank()) + theme(legend.position='none')
+  #plt = plt + theme(legend.title=element_blank()) + theme(legend.position='none')
 
   return(plt)
 

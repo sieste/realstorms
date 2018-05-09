@@ -1,0 +1,64 @@
+# Storm tracking for Real Projections
+
+An R package to analyse and plot storm tracks and storm track density from reanalyses and climate model data.
+
+The package uses `data.table` and `ggplot2` for fast computation and high quality graphics.
+
+
+## Installation
+
+```{r, eval=FALSE}
+devtools::install_github('sieste/real_storm_tracks')
+```
+```{r, include=FALSE}
+knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='figure/readme/')
+devtools::install()
+library(realstorms)
+```
+
+
+## Usage example
+
+We are working with files of standard ascii output format produced by the
+[TRACK storm tracking
+software](http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html). (Currently, no data is included with the package, but will soon be.)
+
+
+```{r init-file}
+stormsfile = 'storms.txt'
+writeLines(readLines(stormsfile, n=8))
+```
+
+The function `read_tracks` parses TRACK output into a `data.table`. Variable names can be passed as a function argument:
+
+```{r read-file}
+trx = read_tracks(stormsfile, var=c('vor850', 'mslp', 'speed', 'precip', 'omega'))
+head(trx)
+```
+
+
+The function `track_density` splits the world up into grid boxes of width and height `bw` (in degrees) and calculates track count, track density, feature count and feature density:
+
+```{r calc-td}
+# calculate track density on a 5x5 degree grid
+td = track_density(trx, bw=5)
+head(td)
+```
+
+The object `trx` is of class `stormtracks`, and the object `td` is of class `track_density`. Both classes have S3 plotting methods:
+
+```{r plot-trx}
+plot(trx, var='vor850')
+```
+
+```{r plot-td}
+plot(td, 'track_density')
+```
+
+
+```{r plot-fc}
+plot(td, 'feature_count')
+```
+
+
+

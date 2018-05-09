@@ -1,5 +1,5 @@
 Makefile
-README.md
+README.*
 .gitignore
 .git
 ^.*.Rcheck$
@@ -8,4 +8,4 @@ notes
 data
 LICENSE
 libtmp
-
+figure

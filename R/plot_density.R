@@ -1,7 +1,7 @@
 #' Plot track or feature density
 #'
 #' @param obj Data table returned by function `count_storms`
-#' @param what One of 'track_density', 'point_density', 'track_count', 'point_count'
+#' @param what One of 'track_density', 'feature_density', 'track_count', 'feature_count'
 #' @return A ggplot2 object
 #' @seealso track_density
 #' @import ggplot2
@@ -11,7 +11,7 @@
 plot.track_density =
 function(
   obj, 
-  what = c('track_density', 'point_density', 'track_count', 'point_count')) 
+  what = c('track_density', 'feature_density', 'track_count', 'feature_count')) 
 {
 
   what = match.arg(what)
@@ -20,7 +20,7 @@ function(
   coastline = tidy(coastsCoarse)
 
   plt =
-  ggplot(obj, aes(x=lon_ctr, y=lat_ctr)) + 
+  ggplot(obj, aes(x=lon, y=lat)) + 
     geom_raster(aes_string(fill=what)) +
     geom_contour(aes_string(z=what)) +
     geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +

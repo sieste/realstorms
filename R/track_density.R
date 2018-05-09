@@ -1,6 +1,6 @@
 #' Calculate storm track density on a grid.
 #'
-#' Count total number and normalised number of storm tracks or points along storm tracks on a grid.
+#' Count total number and normalised number of storm tracks or features on a grid.
 #'
 #' @param tracks Object of class `stormtracks` (see `read_tracks`)
 #' @param bw The bin width (in degrees) of the grid on which track density is calculate. Default=1.
@@ -56,18 +56,18 @@ function(tracks,
   # combine bins
   tracks[, bin := as.factor(paste(lon_bin, lat_bin, sep=','))]
 
-  # count points per bin
-  point_count = tracks[, .(point_count=.N) , keyby=bin]
+  # count features per bin
+  feature_count = tracks[, .(feature_count=.N) , keyby=bin]
 
   # count tracks per bin
   track_count = tracks[ , .(bin = unique(bin)) , by=ID ][ 
                         , .(track_count=.N), keyby=bin ]
 
-  # merge point and track counts
-  counts = merge(point_count, track_count)
+  # merge feature and track counts
+  counts = merge(feature_count, track_count)
 
-  # calculate point density and track density
-  counts[, point_density := point_count / sum(point_count, na.rm=TRUE)]
+  # calculate feature density and track density
+  counts[, feature_density := feature_count / sum(feature_count, na.rm=TRUE)]
   counts[, track_density := track_count / sum(track_count, na.rm=TRUE)]
 
   # also, calculate lower and upper bin limits and bin centers
@@ -81,8 +81,8 @@ function(tracks,
   counts[, lon_max := sapply(bin_splt, `[`, 2)]
   counts[, lat_min := sapply(bin_splt, `[`, 3)]
   counts[, lat_max := sapply(bin_splt, `[`, 4)]
-  counts[, lon_ctr := 0.5 * (lon_min + lon_max)]
-  counts[, lat_ctr := 0.5 * (lat_min + lat_max)]
+  counts[, lon := 0.5 * (lon_min + lon_max)]
+  counts[, lat := 0.5 * (lat_min + lat_max)]
   counts[, bin_splt := NULL]
 
   class(counts) = c('track_density', class(counts))
