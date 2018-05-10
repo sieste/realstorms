@@ -1,6 +1,6 @@
 Package: realstorms
 Version: 0.0-1
-Date: 2017-06-16
+Date: 2018-05-10
 Title: Storm track analysis
 Description: R functions for storm track analysis
 Authors@R: c(person(given="Stefan", family="Siegert",   role = c("aut", "cre"), 
@@ -9,8 +9,8 @@ Authors@R: c(person(given="Stefan", family="Siegert",   role = c("aut", "cre"),
             )
 Maintainer: Stefan Siegert <s.siegert@exeter.ac.uk>
 License: GPL (>= 2)
-Depends: ggplot2, broom
-Imports: rworldmap, plyr
+Depends: ggplot2, broom, data.table
+Imports: rworldmap, plyr, viridis
 LinkingTo: 
 Suggests: 
 RoxygenNote: 6.0.1
