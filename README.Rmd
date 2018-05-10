@@ -12,7 +12,7 @@ devtools::install_github('sieste/realstorms')
 library(realstorms)
 ```
 ```{r, include=FALSE}
-knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='figure/readme/')
+knitr::opts_chunk$set(fig.width=8, fig.height=4.5, fig.path='figure/readme/')
 devtools::install()
 library(realstorms)
 ```
