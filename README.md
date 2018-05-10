@@ -9,7 +9,8 @@ The package uses `data.table` and `ggplot2` for fast computation and high qualit
 
 
 ```r
-devtools::install_github('sieste/real_storm_tracks')
+devtools::install_github('sieste/realstorms')
+library(realstorms)
 ```
 
 
