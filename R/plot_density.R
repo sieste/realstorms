@@ -5,6 +5,7 @@
 #' @return A ggplot2 object
 #' @seealso track_density
 #' @import ggplot2
+#' @import viridis
 #' @importFrom broom tidy
 #' @export
 #'
@@ -21,12 +22,15 @@ function(
 
   plt =
   ggplot(obj, aes(x=lon, y=lat)) + 
-    geom_raster(aes_string(fill=what)) +
-    geom_contour(aes_string(z=what)) +
-    geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
+    geom_raster(aes_string(fill=what, alpha=what), interpolate=TRUE) +
+    geom_contour(aes_string(z=what, colour='..level..')) +
+    geom_path(data=coastline, aes(x=long, y=lat, group=group), color='gray60') +
+    scale_alpha_continuous(range=c(0, 1), guide='none') +
+    scale_fill_viridis() +
+    scale_colour_viridis(guide='none') +
     theme_bw() +
-    coord_cartesian(xlim = obj[, c(min(lon_min), max(lon_max))],
-                    ylim = obj[, c(min(lat_min), max(lat_max))])
+    coord_cartesian(xlim = subset(obj, get(what) > 0)[, c(min(lon_min), max(lon_max))],
+                    ylim = subset(obj, get(what) > 0)[, c(min(lat_min), max(lat_max))])
 
 
   return(plt)
