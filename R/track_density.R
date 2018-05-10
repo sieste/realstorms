@@ -70,6 +70,19 @@ function(tracks,
   counts[, feature_density := feature_count / sum(feature_count, na.rm=TRUE)]
   counts[, track_density := track_count / sum(track_count, na.rm=TRUE)]
 
+  # add empty bins (this improves the contour plots)
+  all_bins = as.data.table(
+               expand.grid(lon_bin=levels(tracks[, lon_bin]), 
+                           lat_bin=levels(tracks[, lat_bin])))
+  all_bins[, bin := as.factor(paste(lon_bin, lat_bin, sep=','))]
+
+  counts = counts[J(all_bins$bin)]
+
+  for (jj in c('feature_count', 'feature_density', 'track_count', 'track_density')) {
+    set(counts, which(is.na(counts[[jj]])), jj, 0)
+  }
+
+
   # also, calculate lower and upper bin limits and bin centers
   # split by comma:
   counts[, bin_splt := strsplit(as.character(bin), ',')]
