@@ -28,7 +28,8 @@ plot.stormtracks = function(obj, var=NULL) {
         geom_path(data=coastline, aes(x=long, y=lat, group=group), color='black') +
         theme_bw() +
     coord_cartesian(xlim = obj[, range(get(lon_col))],
-                    ylim = obj[, range(get(lat_col))])
+                    ylim = obj[, range(get(lat_col))]) +
+    coord_equal()
 
   #plt = plt + theme(legend.title=element_blank()) + theme(legend.position='none')
 

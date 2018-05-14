@@ -30,7 +30,8 @@ function(
     scale_colour_viridis(guide='none') +
     theme_bw() +
     coord_cartesian(xlim = subset(obj, get(what) > 0)[, c(min(lon_min), max(lon_max))],
-                    ylim = subset(obj, get(what) > 0)[, c(min(lat_min), max(lat_max))])
+                    ylim = subset(obj, get(what) > 0)[, c(min(lat_min), max(lat_max))]) +
+    coord_equal()
 
 
   return(plt)
