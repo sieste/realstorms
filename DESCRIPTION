@@ -9,8 +9,9 @@ Authors@R: c(person(given="Stefan", family="Siegert",   role = c("aut", "cre"),
             )
 Maintainer: Stefan Siegert <s.siegert@exeter.ac.uk>
 License: GPL (>= 2)
-Depends: ggplot2, broom, data.table
+Depends: ggplot2, broom, data.table, smoothie
 Imports: rworldmap, plyr, viridis
 LinkingTo: 
-Suggests: 
+Suggests: knitr
+VignetteBuilder: knitr
 RoxygenNote: 6.0.1

@@ -5,12 +5,17 @@
 \title{Plot track or feature density}
 \usage{
 plot.track_density(obj, what = c("track_density", "feature_density",
-  "track_count", "feature_count"))
+  "track_count", "feature_count"), contour_smooth = NULL,
+  contour_levels = NULL)
 }
 \arguments{
 \item{obj}{Data table returned by function `count_storms`}
 
 \item{what}{One of 'track_density', 'feature_density', 'track_count', 'feature_count'}
+
+\item{contour_smooth}{Smoothing parameter for the contour lines}
+
+\item{contour_levels}{Vector of levels at which to draw contour lines.}
 }
 \value{
 A ggplot2 object
