@@ -42,7 +42,7 @@ The function `track_density` splits the world up into grid boxes of width and he
 
 ```{r calc-td}
 # calculate track density on a 5x5 degree grid
-td = track_density(trx, bw=5)
+td = track_density(trx, bw=1)
 head(td)
 ```
 
@@ -52,14 +52,12 @@ The object `trx` is of class `stormtracks`, and the object `td` is of class `tra
 plot(trx, var='vor850')
 ```
 
+
 ```{r plot-td}
-plot(td, 'track_density')
+plot(td, what='track_density', contour_smooth=2) + 
+coord_cartesian(xlim=c(-100,100), ylim=c(25,75))
 ```
 
-
-```{r plot-fc}
-plot(td, 'feature_count')
-```
 
 
 
