@@ -56,14 +56,16 @@ function(tracks,
   # combine bins
   tracks[, bin := as.factor(paste(lon_bin, lat_bin, sep=','))]
 
-  # count features per bin
+  # count features per bin: group by bin and counter number of points within
+  # each bin
   feature_count = tracks[, .(feature_count=.N) , keyby=bin]
 
-  # count tracks per bin
+  # count tracks per bin: group by storm (ID) and find unique bins per storm,
+  # then group by bin and calculate number of storms per bin
   track_count = tracks[ , .(bin = unique(bin)) , by=ID ][ 
                         , .(track_count=.N), keyby=bin ]
 
-  # merge feature and track counts
+  # merge feature and track counts into one data table
   counts = merge(feature_count, track_count)
 
   # calculate feature density and track density
@@ -83,10 +85,11 @@ function(tracks,
   }
 
 
-  # also, calculate lower and upper bin limits and bin centers
+  # also, calculate lower and upper bin limits and bin centers by parsing the
+  # `bin` variable (e.g. `(-180,-179],(-90,-89]`)
   # split by comma:
   counts[, bin_splt := strsplit(as.character(bin), ',')]
-  # remove any brackets:
+  # remove any round or square brackets:
   counts[, bin_splt := lapply(bin_splt, function(s) gsub('\\(|\\)|\\[|\\]', '', s))]
   # define lon/lat min/max/center
   counts[, bin_splt := lapply(bin_splt, as.numeric)]
