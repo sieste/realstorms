@@ -78,7 +78,8 @@ function(filename=NULL, var_names=NULL) {
   # extract the lat lon descriptor string (regex pattern '&[01]+') from the
   # appropriate header line 
   descr_line = grep('^TRACK_NUM', lines[1:10], value=TRUE)
-  descr = sub('^.*(&[01]+).*$', '\\1', descr_line)
+  descr = sub('^.*(&[01]*).*$', '\\1', descr_line)
+#  descr = sub('^.*(&[01]+).*$', '\\1', descr_line)
 
   # a 1 in the descriptor string denotes that there are lons and lats, a 0
   # denotes that only the variable was stored, so we append to col_names either
